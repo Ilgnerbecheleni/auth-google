@@ -9,16 +9,17 @@ export class UsersService {
 
   constructor (private readonly userPrisma: PrismaService){}
 
-  async findBySub(sub:string){
+  async findBySub(id:string){
     try {
-      const user = await this.userPrisma.user.findFirst({where:{ sub }});
+      const user = await this.userPrisma.user.findFirst({where:{ sub:id }});
 if(user){
   return user ;
 }
 return null;
 
     } catch (error) {
-      throw new BadRequestException({message:"falha ao buscar User", erro:error.message})
+      console.log(error)
+      throw new BadRequestException(error)
     }
   }
 
@@ -28,6 +29,8 @@ return null;
     const user = await this.userPrisma.user.create({data:createUserDto});
     if(user){
       return user
+    }else{
+      throw new BadRequestException("falha ao criar usuario")
     }
    } catch (error) {
     throw new BadRequestException({message:"falha ao buscar User", erro:error.message})

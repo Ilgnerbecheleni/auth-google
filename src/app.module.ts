@@ -1,4 +1,5 @@
-import { Module, forwardRef } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -9,8 +10,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersController } from './users/users.controller';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule],
-  controllers: [AppController, AuthController,UsersController],
+  imports: [ UsersModule,PrismaModule, AuthModule],
+  controllers: [AppController],
   providers: [AppService, GoogleStrategy],
 })
 export class AppModule {}
