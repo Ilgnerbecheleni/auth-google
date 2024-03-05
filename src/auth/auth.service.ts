@@ -1,20 +1,29 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   
+  constructor(private readonly userService: UsersService){}
   
+    
   
-  
-    googleLogin(req) {
+    async googleLogin(req) {
         if (!req.user) {
           return 'No user from google'
         }
-    
-        return {
-          message: 'User information from google',
-          user: req.user
-        }
-      }
+        const user = this.userService.findBySub(req.user.sub);
+if(!user){
+  throw new BadRequestException("falha ao criar usuario")
 }
+const userdata = this.userService.create({...req.user});
+ return {
+    message: 'User criado from google',
+    user: userdata
+  }
+
+}
+      }
+
