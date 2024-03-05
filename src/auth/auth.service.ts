@@ -15,6 +15,7 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload, {
         secret: 'Matheus',
+
         expiresIn: '7d',
         // subject: String(payload.sub),
         // issuer: 'signin',
