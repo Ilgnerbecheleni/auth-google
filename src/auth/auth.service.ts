@@ -24,6 +24,18 @@ export class AuthService {
     };
   }
 
+   checkToken(token: string) {
+        try {
+            const data = this.jwtService.verify(token, {
+              });
+
+            return data;
+        } catch (e) {
+            throw new BadRequestException(e);
+        }
+    }
+
+
   async googleLogin(req) {
     if (!req.user) {
       return 'No user from google';
