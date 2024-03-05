@@ -1,14 +1,28 @@
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
 
-  constructor(private readonly userService: UsersService) { }
+  constructor(private readonly userService: UsersService,
+    private readonly jwtService: JwtService
+  ) { }
 
 
+  async generateToken(payload) {
+    return {
+      accessToken: this.jwtService.sign(payload, {
+        secret: process.env.SECRET,
+        expiresIn: "7 days",
+        subject: String(payload.sub),
+        issuer: 'signin',
+        audience: 'google',
+      })
+    }
+  }
 
   async googleLogin(req) {
     if (!req.user) {
@@ -21,12 +35,24 @@ export class AuthService {
 
     if (!user) {
       const userdata = await this.userService.create({ sub: id, email: email, nome: firstName, picture: picture });
-      return {
+      if(userdata){
+       const token = await this.generateToken(userdata);
+       return {
         message: 'User criado from google',
-        user: userdata
+        user: userdata ,
+        token: token
       }
+      }else{
+        throw new BadRequestException("falha ao autencicar")
+      }
+      
+     
     } else {
-      return "fazer JWT"
+      const token = await this.generateToken(user);
+      return {
+       user: user ,
+       token: token
+      }
     }
   }
 
