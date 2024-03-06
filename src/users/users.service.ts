@@ -41,8 +41,22 @@ return null;
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+ async findOne(id: number) {
+   try {
+    try {
+      const user = await this.userPrisma.user.findFirst({where:{ id:id }});
+if(!user){
+  throw new BadRequestException("falha ao buscar usuario")
+}
+
+return user ;
+    } catch (error) {
+      console.log(error)
+      throw new BadRequestException(error)
+    }
+   } catch (error) {
+    
+   }
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

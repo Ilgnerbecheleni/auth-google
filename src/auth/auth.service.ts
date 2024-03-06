@@ -3,6 +3,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from 'src/users/users.service';
+import { payloadInterface } from './interface/payload.interface';
+
+
 
 @Injectable()
 export class AuthService {
@@ -11,17 +14,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async generateToken(payload) {
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        secret: 'Matheus',
+  async generateToken(payload:payloadInterface) {
+   try {
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.SECRET,
+      expiresIn: '7 days',
+      
+    })
+if(!token){
+  throw new BadRequestException("falha ao gerar token")
+}
+    return token;
 
-        expiresIn: '7d',
-        // subject: String(payload.sub),
-        // issuer: 'signin',
-        // audience: 'google',
-      }),
-    };
+
+   } catch (error) {
+    throw new BadRequestException(error);
+   }
   }
 
    checkToken(token: string) {
@@ -46,7 +54,7 @@ export class AuthService {
     const user = await this.userService.findBySub(id);
 
     if (!user) {
-      const userdata = await this.userService.create({
+      const userdata:payloadInterface = await this.userService.create({
         sub: id,
         email: email,
         nome: firstName,
@@ -64,6 +72,8 @@ export class AuthService {
       }
     } else {
       const token = await this.generateToken(user);
+
+      console.log( await this.jwtService.verify(token,{secret:process.env.SECRET}))
       return {
         user: user,
         token: token,
